@@ -1,0 +1,113 @@
+import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
+
+class InteractiveToolsPage extends StatefulWidget {
+  const InteractiveToolsPage({super.key});
+
+  @override
+  _InteractiveToolsPageState createState() => _InteractiveToolsPageState();
+}
+
+class _InteractiveToolsPageState extends State<InteractiveToolsPage> {
+  late VideoPlayerController _controller;
+  bool _showAnswers = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.network(
+      'https://www.example.com/video.mp4', // Replace with your video URL
+    )..initialize().then((_) {
+        setState(() {});
+        _controller.play();
+      });
+    _controller.setLooping(true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Interactive Tools'),
+        backgroundColor: Colors.amber,
+      ),
+      body: Container(
+        color: Colors.black,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              // Hints Section
+              Expanded(
+                child: ListView(
+                  children: [
+                    ListTile(
+                      title: Text('Hint 1: Review Chapter 3', style: TextStyle(color: Colors.white)),
+                    ),
+                    ListTile(
+                      title: Text('Hint 2: Focus on key concepts', style: TextStyle(color: Colors.white)),
+                    ),
+                    // Add more hints as needed
+                  ],
+                ),
+              ),
+              // Correct Answers Section
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _showAnswers = true;
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                ),
+                child: const Text('Reveal Answers'),
+              ),
+              if (_showAnswers)
+                Column(
+                  children: [
+                    Text('Answer 1: ...', style: TextStyle(color: Colors.white)),
+                    Text('Answer 2: ...', style: TextStyle(color: Colors.white)),
+                    // Add more answers as needed
+                  ],
+                ),
+              // Mandatory Video Section
+              _controller.value.isInitialized
+                  ? AspectRatio(
+                      aspectRatio: _controller.value.aspectRatio,
+                      child: VideoPlayer(_controller),
+                    )
+                  : Container(),
+              ElevatedButton(
+                onPressed: () {
+                  // Handle video playback logic
+                  if (_controller.value.isPlaying) {
+                    _controller.pause();
+                  } else {
+                    _controller.play();
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                ),
+                child: Text(_controller.value.isPlaying ? 'Pause Video' : 'Play Video'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: InteractiveToolsPage(),
+  ));
+}
